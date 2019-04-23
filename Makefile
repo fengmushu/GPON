@@ -1,2 +1,6 @@
+
+X_FLAGS := --gzip --nomd5 --nocrc --nowctr
+X_LABLE := "osgi-hproxy"
+
 all:
-	./makeself/makeself.sh --gzip --nomd5 --nocrc hotfix/ hotfix.run "osgi-proxy" ./startup.sh
+	./makeself/makeself.sh $(X_FLAGS) hotfix/ hotfix.run $(X_LABLE) ./startup.sh
