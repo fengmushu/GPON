@@ -6,4 +6,4 @@
 - copy the generated "hotfix.run" to target device /tmp and test ...
 
 ### TEST
-- hotfix.run --keep --nodiskspace --quiet
+- hotfix.run --keep
