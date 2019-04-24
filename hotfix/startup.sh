@@ -46,7 +46,7 @@ ln -sf $PWD/$PLUGIN_hproxy_file $BUNDLE/$PLUGIN_hproxy
 
 ##### update config
 [ -f $CONF_backup ] || cp $CONF $CONF_backup
-sed -r 's#mangement\.jar#mangement.jar \\\r\n file:bundle\/com.chinatelecom.smartgateway.hproxy.jar#g' <  $CONF_backup > $CONF
+sed -r 's#mangement\.jar#mangement.jar \\\n file:bundle/com.chinatelecom.smartgateway.hproxy.jar#g' <  $CONF_backup > $CONF
 echo "com.chinatelecom.smartgateway.hproxy.id=$MACH_ID" >> $CONF
 
 ##### restart jamvm
