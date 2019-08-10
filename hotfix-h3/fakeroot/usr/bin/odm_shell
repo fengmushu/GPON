@@ -17,9 +17,6 @@ update_mac() {
         factory init
         MAC=`factory get eth0_mac`
     }
-
-    # check MAC -eq net-interface-macaddr
-    factory sync eth0_mac
     return 0
 }
 
@@ -28,7 +25,18 @@ alert() {
 }
 
 # main
+pidof gpio_keys || {
+    sudo gpio_keys 2>/dev/null &
+}
+
+# update MAC from factory part
 update_mac
+
+# sync, as rootfs may reset by user
+factory sync eth0_mac
+sleep 1
+
+# try
 [ x$MAC = x$env_mac_default ] && {
     while update_mac
     do
@@ -66,5 +74,7 @@ update_mac
                 sudo rm -f $NXC_TSF
             }
         }
+        # must wait sec's
+        sleep 1
     done
 }

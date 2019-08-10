@@ -122,6 +122,23 @@ factory_reset() {
 	update_interface $env_mac_default
 }
 
+do_sync() {
+	# only sync mac
+	local key=$1
+	[ x"$key" = x"eth0_mac" ] && {
+		odm_mac=`factory_get eth0_mac`
+		[ x$odm_mac = x$env_mac_default ] && {
+			exit 0
+		}
+
+		use_mac=`grep hwaddress /etc/network/interfaces | awk '{print $3}'`
+		[ x$odm_mac = x$use_mac ] || {
+			echo "sync mac to: $odm_mac"
+			update_interface $odm_mac 2>/dev/null
+		}
+	}
+}
+
 # main process
 sudo chmod a+rw $env_dev_path
 
@@ -143,19 +160,7 @@ case "$1" in
 	;;
 	sync)
 		[ $# -eq 2 ] || usage
-		# only sync mac
-		[ x"$2" = x"eth0_mac" ] && {
-			odm_mac=`factory_get eth0_mac`
-			[ x$odm_mac = x$env_mac_default ] && {
-				exit 0
-			}
-
-			use_mac=`grep hwaddress /etc/network/interfaces | awk '{print $3}'`
-			[ x$odm_mac = x$use_mac ] || {
-				echo "sync mac to: $odm_mac"
-				update_interface $odm_mac 2>/dev/null
-			}
-		}
+		do_sync $2
 	;;
 	*)
 		[ $# -ge 1 ] && usage

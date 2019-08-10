@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "aaaaaaaaaaa I'am suiciding ... $*" > /dev/console 
+
+echo 0 > /sys/class/gpio/gpio362/value

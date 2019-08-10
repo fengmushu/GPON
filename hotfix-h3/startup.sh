@@ -9,11 +9,6 @@ copy_files() {
 }
 
 do_hotfix() {
-    # disable 30-armbian-sysinfo, for cause mmc blocked.
-    [ -f /etc/update-motd.d/30-armbian-sysinfo ] && {
-        sudo mv /etc/update-motd.d/30-armbian-sysinfo /root/etc_update-motd.d_30-armbian-sysinfo
-    }
-
     # fixup timezone
     sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }

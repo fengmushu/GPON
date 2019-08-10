@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# set -x
+
+# pins
+PWR_CTRL=362    #PL10
+PWR_KEY=1       #PA01
+
+# sysfs
+GP_SYSFS=/sys/class/gpio
+EX_PORT=$GP_SYSFS/export
+DE_PORT=$GP_SYSFS/unexport
+
+init()
+{
+    # in|out(low)|high
+    [ -d $GP_SYSFS/gpio$PWR_CTRL ] || {
+        echo $PWR_CTRL > $EX_PORT
+        echo high > $GP_SYSFS/gpio$PWR_CTRL/direction
+    }
+    [ -d $GP_SYSFS/gpio$PWR_KEY ] || {
+        echo $PWR_KEY > $EX_PORT
+        echo in > $GP_SYSFS/gpio$PWR_KEY/direction
+    }
+}
+
+cleanup()
+{
+    [ -d $GP_SYSFS/gpio$PWR_CTRL ] && {
+        echo $PWR_CTRL > $DE_PORT
+    }
+    [ -d $GP_SYSFS/gpio$PWR_KEY ] && {
+        echo $PWR_KEY > $DE_PORT
+    }
+}
+
+monitor()
+{
+    while true;
+    do
+        PWR=`cat $GP_SYSFS/gpio$PWR_KEY/value`
+        [ $PWR -eq 0 ] && {
+            echo "power off key pressed."
+            # do not power here, do it in systemd-shutdown hooks
+            # echo 0 > $GP_SYSFS/gpio$PWR_CTRL/value
+            halt
+        }
+
+        sleep 1
+    done
+}
+
+init
+case $1 in
+    cleanup)
+        cleanup
+    ;;
+    *)
+        monitor
+    ;;
+esac
