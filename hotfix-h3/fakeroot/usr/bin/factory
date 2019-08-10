@@ -1,0 +1,163 @@
+#!/bin/sh
+#
+# This script is for factory usage
+# 	1. init ethernet port eth0 MAC address
+# 	2. 
+#
+
+# set -x
+
+env_iface="eth0"
+env_part="mmcblk0boot1"
+env_dev_path="/dev/$env_part"
+env_command="uboot-env -d $env_dev_path -o 0x0 -l 0x20000"
+env_mac_default="78:d3:8d:ac:e2:74"
+
+blk_enable_write() {
+	sudo sh -c "echo 0 > /sys/block/$env_part/force_ro"
+}
+
+init_mac_random() {
+	blk_enable_write
+	$env_command get || {
+		$env_command del -I
+	}
+
+	mac=`ip link show dev $env_iface | grep ether | awk '{print $2}'`
+	[ -z "$mac" ] && return
+
+	$env_command set ${env_iface}_mac $mac
+}
+
+env_reset_hw_addr() {
+	local mac
+
+	[ -b $env_dev_path ] || return
+
+    mac=`$env_command get ${env_iface}_mac 2>/dev/null | awk -F= '{print $2}'`
+
+    [ -z "$mac" ] && {
+		init_mac_random
+		mac=`$env_command get ${env_iface}_mac 2>/dev/null | awk -F= '{print $2}'`
+	}
+
+	[ -z "$mac" ] || {
+        ifconfig ${env_iface} hw ether $mac 2>/dev/null
+    }
+}
+
+update_interface() {
+	sed "s/hwaddress ether .*/hwaddress ether $1/g" /etc/network/interfaces > /tmp/interfaces.new || exit
+	sudo cp /tmp/interfaces.new /etc/network/interfaces
+	sync
+}
+
+usage() {
+	echo "NOT supported pars, init|set|get|unset ..."
+	echo "init: Gen a random mac"
+	echo "set key value"
+	echo "get key | unset key"
+	echo "sync: SYNC the factory-macaddr and net/interfaces" 
+	exit 1
+}
+
+factory_get() {
+	local key=$1
+	[ -z "$key" ] || {
+		$env_command get $key 2>/dev/null | awk -F= '{print $2}' 2>/dev/null
+		exit 0
+	}
+	$env_command get 2>/dev/null
+}
+
+factory_set() {
+	# set writeable
+	blk_enable_write
+	#fixup format
+	#
+	# AA:bb:cc:DD:11:22, aabbccdd1122 => aa:bb:cc:dd:ee:ff
+	#
+	local key=$1
+	local val=$2
+	[ x"$key" = x"eth0_mac" ] && {
+		#to lower
+		val=`printf $val | tr 'A-Z' 'a-z'`
+		#fixup format
+		if printf $val | grep ':' 2>&1 > /dev/null
+		then
+			aa=`printf $val | cut -c1-2`
+			bb=`printf $val | cut -c4-5`
+			cc=`printf $val | cut -c7-8`
+			dd=`printf $val | cut -c10-11`
+			ee=`printf $val | cut -c13-14`
+			ff=`printf $val | cut -c16-17`
+		else
+			aa=`printf $val | cut -c1-2`
+			bb=`printf $val | cut -c3-4`
+			cc=`printf $val | cut -c5-6`
+			dd=`printf $val | cut -c7-8`
+			ee=`printf $val | cut -c9-10`
+			ff=`printf $val | cut -c11-12`
+		fi
+		[ -z "$aa" ] && exit
+		[ -z "$bb" ] && exit
+		[ -z "$cc" ] && exit
+		[ -z "$dd" ] && exit
+		[ -z "$ee" ] && exit
+		[ -z "$ff" ] && exit
+		val="$aa:$bb:$cc:$dd:$ee:$ff"
+		update_interface $val
+	}
+	$env_command set $key $val || exit
+}
+
+factory_reset() {
+	echo "Generate a random MAC address..."
+	# format blk dev
+	blk_enable_write
+	dd if=/dev/zero of=/dev/mmcblk0boot1 bs=1024 count=1
+	env_reset_hw_addr
+	# Apacer Technology Inc.
+	$env_command set "eth0_mac" $env_mac_default
+	update_interface $env_mac_default
+}
+
+# main process
+sudo chmod a+rw $env_dev_path
+
+case "$1" in
+	init)
+		factory_reset
+	;;
+	set)
+		[ $# -eq 3 ] || usage
+		factory_set $2 $3
+	;;
+	get)
+		factory_get $2
+	;;
+	unset)
+		blk_enable_write
+		# de-set's
+		$env_command del $2 2>/dev/null
+	;;
+	sync)
+		[ $# -eq 2 ] || usage
+		# only sync mac
+		[ x"$2" = x"eth0_mac" ] && {
+			odm_mac=`factory_get eth0_mac`
+			[ x$odm_mac = x$env_mac_default ] && {
+				exit 0
+			}
+
+			use_mac=`grep hwaddress /etc/network/interfaces | awk '{print $3}'`
+			[ x$odm_mac = x$use_mac ] || {
+				echo "sync mac to: $odm_mac"
+				update_interface $odm_mac 2>/dev/null
+			}
+		}
+	;;
+	*)
+		usage
+	;;
+esac

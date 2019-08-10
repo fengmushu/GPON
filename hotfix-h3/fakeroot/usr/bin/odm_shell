@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# set -x
+. /usr/bin/factory
+
+export DISPLAY=:0
+# END ENV
+
+# Global Vars
+MAC=""
+NXC_TSF="/tmp/nxc_command"
+
+# api functions
+update_mac() {
+    MAC=`factory get eth0_mac`
+    [ x"$MAC" = x"" ] && {
+        factory init
+        MAC=`factory get eth0_mac`
+    }
+
+    # check MAC -eq net-interface-macaddr
+    factory sync eth0_mac
+    return 0
+}
+
+alert() {
+    xmessage -timeout 2 -center -buttons OK:0,Cancel:1 "$1"
+}
+
+# main
+update_mac
+[ x$MAC = x$env_mac_default ] && {
+    while update_mac
+    do
+        [ x$MAC = x$env_mac_default ] || {
+            # mac updated
+            xmessage -timeout 5 -center "New-MAC: $MAC"
+            sudo killall in.telnetd
+            sudo killall aplay
+            sudo sync
+            exit 0
+        }
+        alert "Waiting eth0 mac address be set ..."
+        [ $? -gt 0 ] && exit 0
+
+        # audio test
+        pidof aplay >/dev/null 2>&1 || {
+            sudo aplay ~/4SEASONS.wav &
+        }
+
+        # nxc tester update mac?
+        pidof in.telnetd >/dev/null 2>&1 || {
+            sudo in.telnetd -debug -h -n &
+        }
+
+        # wait telnet client
+        [ -f $NXC_TSF ] && {
+            kv=`cat $NXC_TSF`
+            [ -z "$kv" ] || {
+                k=`echo $kv | awk -F= '{print $1}'`
+                v=`echo $kv | awk -F= '{print $2}'`
+                logger "nxc tester update: $k=$v."
+                [ -n "$k" ] && [ -n "$v" ] && {
+                    factory set "$k" "$v"
+                }
+                sudo rm -f $NXC_TSF
+            }
+        }
+    done
+}
