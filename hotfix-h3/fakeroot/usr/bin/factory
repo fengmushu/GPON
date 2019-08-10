@@ -158,6 +158,6 @@ case "$1" in
 		}
 	;;
 	*)
-		usage
+		[ $# -ge 1 ] && usage
 	;;
 esac
