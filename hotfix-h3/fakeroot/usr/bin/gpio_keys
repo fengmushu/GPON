@@ -55,6 +55,8 @@ monitor()
 ### use sunxi-gpiokey modules replaced
 ###
 
+/usr/bin/evtest-h3
+
 # init
 # case $1 in
 #     cleanup)

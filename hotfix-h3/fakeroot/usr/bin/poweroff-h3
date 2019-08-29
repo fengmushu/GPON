@@ -1,5 +1,8 @@
 #!/bin/sh
 
 # set -x
+DELAYS=$1
 
-/bin/echo 9 > /sys/module/sunxi_gpiokey/parameters/poweroff
+[ -z $DELAYS ] && DELAYS=9
+
+sudo sh -c "/bin/echo $DELAYS > /sys/module/sunxi_gpiokey/parameters/poweroff"
