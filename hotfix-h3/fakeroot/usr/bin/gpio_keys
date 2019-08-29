@@ -43,6 +43,7 @@ monitor()
             echo "power off key pressed."
             # do not power here, do it in systemd-shutdown hooks
             # echo 0 > $GP_SYSFS/gpio$PWR_CTRL/value
+            # sudo sh -c 'echo 30 > /sys/module/sunxi_gpiokey/parameters/poweroff'
             halt
         }
 
@@ -50,12 +51,16 @@ monitor()
     done
 }
 
-init
-case $1 in
-    cleanup)
-        cleanup
-    ;;
-    *)
-        monitor
-    ;;
-esac
+###
+### use sunxi-gpiokey modules replaced
+###
+
+# init
+# case $1 in
+#     cleanup)
+#         cleanup
+#     ;;
+#     *)
+#         monitor
+#     ;;
+# esac

@@ -1,0 +1,13 @@
+[Unit]
+Description=poweroff H3
+After=getty@tty1.service display-manager.service
+Before=systemd-poweroff.service systemd-reboot.service systemd-halt.service
+DefaultDependencies=no
+
+[Service]
+ExecStart=/usr/bin/poweroff-h3
+ExecStop=/usr/bin/poweroff-h3
+[Install]
+WantedBy=poweroff.target
+WantedBy=reboot.target
+WantedBy=halt.target

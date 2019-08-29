@@ -2,4 +2,7 @@
 
 echo "aaaaaaaaaaa I'am suiciding ... $*" > /dev/console 
 
-echo 0 > /sys/class/gpio/gpio362/value
+### use kernel module replaced
+# echo 0 > /sys/class/gpio/gpio362/value
+sudo sh -c 'echo 1 > /sys/module/sunxi_gpiokey/parameters/poweroff'
+

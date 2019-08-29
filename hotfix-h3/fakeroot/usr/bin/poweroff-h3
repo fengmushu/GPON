@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# set -x
+
+/bin/echo 9 > /sys/module/sunxi_gpiokey/parameters/poweroff

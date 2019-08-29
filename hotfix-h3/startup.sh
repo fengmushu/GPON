@@ -17,6 +17,9 @@ do_hotfix() {
     cd /lib/modules && {
         [ -d $KVER ] || [ -L $KVER ] || sudo ln -s 3.4.113-sun8i $KVER
     }
+    # enable new services
+    sudo systemctl enable shutdown-h3
+    sudo systemctl daemon-reload
 }
 
 main()
