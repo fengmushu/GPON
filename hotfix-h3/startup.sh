@@ -3,7 +3,8 @@
 # set -x
 
 PWD=`pwd`
-KVER=`uname  -r`
+# KVER=`uname  -r`
+KVER='3.4.113+'
 
 copy_files() {
     cd $PWD
@@ -17,6 +18,7 @@ do_hotfix() {
     cd /lib/modules && {
         [ -d $KVER ] || [ -L $KVER ] || sudo ln -s 3.4.113-sun8i $KVER
     }
+    sudo depmod
     # enable new services
     sudo systemctl enable shutdown-h3
     sudo systemctl daemon-reload
