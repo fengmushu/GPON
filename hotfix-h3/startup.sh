@@ -8,6 +8,8 @@ KVER='3.4.113+'
 
 DEBS_DIR="/var/cache/apt/archives/"
 DEBS_LIST="watchdog_5.14-3ubuntu0.16.04.1_armhf.deb"
+UBOOT_BIN="u-boot-sunxi-with-spl.bin"
+EMMC_DEVICE="/dev/mmcblk0"
 
 copy_files() {
     # stop evtest-h3
@@ -16,6 +18,17 @@ copy_files() {
     # do copy
     cd $PWD
     sudo cp -a ./fakeroot/* /
+
+    # disk hacker
+    [ -f "${UBOOT_BIN}" ] && {
+        UBOOT_SUM=`dd if=${EMMC_DEVICE} bs=1024 skip=8 count=512 2>/dev/null | md5sum | cut -b-32`
+        NEW_SUM=`dd if=${UBOOT_BIN} bs=1024 count=512 2>/dev/null | md5sum | cut -b-32`
+        echo "current uboot: ${UBOOT_SUM} vs new: ${NEW_SUM}"
+        [ x"${UBOOT_SUM}" = x"${NEW_SUM}" ] || {
+            dd if=${UBOOT_BIN} of=${EMMC_DEVICE} bs=1024 seek=8 conv=notrunc,fsync
+            echo "new bootloader updated $?"
+        }
+    }
 }
 
 do_hotfix() {
