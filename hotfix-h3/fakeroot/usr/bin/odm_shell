@@ -1,6 +1,19 @@
 #!/bin/sh
 
 # set -x
+
+# 点灯
+sudo sh -c "echo heartbeat > /sys/class/leds/QPT_LED4/trigger"
+
+# main
+pidof gpio_keys || {
+    sudo gpio_keys 2>/dev/null &
+}
+
+# 工厂生产不带 hotfix-version
+[ -f /etc/hotfix-version ] && exit 0
+
+# 生产测试相关
 . /usr/bin/factory
 
 export DISPLAY=:0
@@ -22,11 +35,6 @@ update_mac() {
 
 alert() {
     xmessage -timeout 2 -center -buttons OK:0,Cancel:1 "$1"
-}
-
-# main
-pidof gpio_keys || {
-    sudo gpio_keys 2>/dev/null &
 }
 
 # update MAC from factory part
