@@ -1,0 +1,15 @@
+[Unit]
+Description=system watchdog utils
+DefaultDependencies=no
+Before=sysinit.target
+Conflicts=shutdown.target
+
+[Service]
+EnvironmentFile=-/etc/default/watchdog
+ExecStart=/usr/sbin/watchdog -F -v
+#ExecStop=
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
