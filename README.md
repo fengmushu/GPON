@@ -7,3 +7,8 @@
 
 ### TEST
 - hotfix.run --keep
+
+### FAQ
+- H3开启kernel log to console:
+    - /boot/armbianEnv.txt -> loglevel=7, console=both
+- 
