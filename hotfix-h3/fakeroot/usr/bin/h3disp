@@ -246,7 +246,7 @@ Main() {
 				HDMIMode=37
 				pll_video=688
 				;;
-			38|1600x900)
+			38|1600x900) # res
 				HDMIMode=38
 				pll_video=476
 				;;
@@ -275,6 +275,9 @@ Main() {
 				| curl -F 'sprunge=<-' http://sprunge.us
 			;;
 	esac
+
+	# flush disk cache
+	sync
 } # Main
 
 ParseOptions() {
@@ -324,6 +327,7 @@ ParseOptions() {
 } # ParseOptions
 
 DisplayUsage() {
+	CURR_MODE=`bin2fex < /boot/script.bin 2>/dev/null | grep screen0_output_mode | awk '{print $3}'`
 	# check if stdout is a terminal...
 	if test -t 1; then
 		# see if it supports colors...
@@ -358,6 +362,7 @@ DisplayUsage() {
 	echo -e "     width resolution in pixel -- range 0-9999"
 	echo -e "    ${BOLD}fb_height${NC}:"
 	echo -e "     height resolution in pixel -- range 0-9999"
+	echo -e "\nCurrent mode: ${CURR_MODE}"
 	echo -e "############################################################################\n"
 } # DisplayUsage
 

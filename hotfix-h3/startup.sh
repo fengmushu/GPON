@@ -10,6 +10,7 @@ DEBS_DIR="/var/cache/apt/archives/"
 DEBS_LIST="watchdog_5.14-3ubuntu0.16.04.1_armhf.deb"
 UBOOT_BIN="u-boot-sunxi-with-spl.bin"
 EMMC_DEVICE="/dev/mmcblk0"
+CURR_DISP_MODE=`bin2fex /boot/script.bin 2>/dev/null | grep screen0_output_mode | awk '{print $3}'`
 
 copy_files() {
     # stop evtest-h3
@@ -55,6 +56,10 @@ do_hotfix() {
     # enable new services
     sudo systemctl enable shutdown-h3
     sudo systemctl daemon-reload
+
+    # restore h3disp
+    echo "restore current disp mode: ${CURR_DISP_MODE}"
+    h3disp -m ${CURR_DISP_MODE}
 }
 
 main()

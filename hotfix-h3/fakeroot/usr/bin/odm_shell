@@ -6,7 +6,7 @@
 sudo sh -c "echo heartbeat > /sys/class/leds/QPT_LED4/trigger"
 
 # main
-pidof gpio_keys || {
+pidof evtest-h3 2>/dev/null || {
     sudo gpio_keys 2>/dev/null &
 }
 
