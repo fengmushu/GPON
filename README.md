@@ -12,3 +12,20 @@
 - H3开启kernel log to console:
     - /boot/armbianEnv.txt -> loglevel=7, console=both
 - 
+
+cat /sys/class/disp/disp/attr/sys
+
+echo switch > /sys/kernel/debug/dispdbg/command
+echo disp 0 > /sys/kernel/debug/dispdbg/name
+echo 4 38 > /sys/kernel/debug/dispdbg/param
+echo 1 > /sys/kernel/debug/dispdbg/start
+
+cat /sys/class/disp/disp/attr/sys
+
+dmesg -c
+
+
+disp_probe -> disp_init -> parser_disp_init_para(scripts.bin) -> 
+                        -> disp_boot_para_parse(kernel command)
+                        -> bsp_disp_init()
+
