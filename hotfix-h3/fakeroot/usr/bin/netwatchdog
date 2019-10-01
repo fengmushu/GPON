@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# set -x
+
+LOCK="/tmp/$0.lock"
+LOGF="/tmp/$0.log"
+
+[ -f $LOCK ] && exit 1
+
+touch $LOCK
+
+monitor()
+{
+    RCNT=`ip ro show 2>/dev/null | wc -l`
+    if [ "$RCNT" -ge 2 ]
+    then
+        echo "router ok"  >> $LOGF
+    else
+        echo "no default via found~!" >> $LOGF
+        UPSec=`cat /proc/uptime | awk -F. '{print $1}'`
+        if [ "$UPSec" -ge 120 ]
+        then
+            echo "restart net interface: eth0" >> $LOGF
+            ifconfig eth0 down
+            sleep 3
+            ifconfig eth0 up
+            sleep 60
+        fi
+    fi
+    sleep 5
+}
+
+while :;
+do
+    monitor
+done

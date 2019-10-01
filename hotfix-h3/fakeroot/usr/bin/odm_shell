@@ -5,10 +5,11 @@
 # 点灯
 sudo sh -c "echo heartbeat > /sys/class/leds/QPT_LED4/trigger"
 
-# main
-pidof evtest-h3 2>/dev/null || {
-    sudo gpio_keys 2>/dev/null &
-}
+# start gpio key monitor
+sudo gpio_keys &
+
+# start net monitor
+sudo netwatchdog &
 
 # 工厂生产不带 hotfix-version
 [ -f /etc/hotfix-version ] && exit 0
