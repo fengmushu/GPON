@@ -22,13 +22,14 @@ def set(width, height):
         logger.error('not support resolution: ' + str(width) + 'x' + str(height))
         return False
 
-    if str(width) == '1920':
-        ret = subprocess.call(['h3disp', '-m', '1080p60'])
-    elif str(height) == '720':
-        ret = subprocess.call(['h3disp', '-m', '720p60'])
-    else:
-        ret = subprocess.call(['h3disp', '-m', str(width) + 'x' + str(height)])
+    return False
+    # if str(width) == '1920':
+    #     ret = subprocess.call(['h3disp', '-m', '1080p60'])
+    # elif str(height) == '720':
+    #     ret = subprocess.call(['h3disp', '-m', '720p60'])
+    # else:
+    #     ret = subprocess.call(['h3disp', '-m', str(width) + 'x' + str(height)])
 
-    logger.info('set screen resolution result: ' + str(ret))
+    # logger.info('set screen resolution result: ' + str(ret))
 
-    return ret == 0
+    # return ret == 0
