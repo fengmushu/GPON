@@ -2,8 +2,8 @@
 
 # set -x
 
-LOCK="/tmp/$0.lock"
-LOGF="/tmp/$0.log"
+LOCK="/tmp/netwatchdog.lock"
+LOGF="/tmp/netwatchdog.log"
 
 [ -f $LOCK ] && exit 1
 
