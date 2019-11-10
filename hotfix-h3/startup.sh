@@ -12,7 +12,15 @@ UBOOT_BIN="u-boot-sunxi-with-spl.bin"
 EMMC_DEVICE="/dev/mmcblk0"
 CURR_DISP_MODE=`bin2fex /boot/script.bin 2>/dev/null | grep screen0_output_mode | awk '{print $3}'`
 
+POST_NEED_SYNC="NO"
+
 copy_files() {
+    # check factory mac sync flag
+    [ -f /etc/hotfix-version ] || {
+        # first patch after reset
+        POST_NEED_SYNC="YES"
+    }
+
     # stop evtest-h3
     sudo killall evtest-h3
 
@@ -22,11 +30,11 @@ copy_files() {
 
     # disk hacker
     [ -f "${UBOOT_BIN}" ] && {
-        UBOOT_SUM=`dd if=${EMMC_DEVICE} bs=1024 skip=8 count=512 2>/dev/null | md5sum | cut -b-32`
-        NEW_SUM=`dd if=${UBOOT_BIN} bs=1024 count=512 2>/dev/null | md5sum | cut -b-32`
+        UBOOT_SUM=`sudo sh -c "dd if=${EMMC_DEVICE} bs=1024 skip=8 count=512 2>/dev/null | md5sum | cut -b-32"`
+        NEW_SUM=`sudo sh -c "dd if=${UBOOT_BIN} bs=1024 count=512 2>/dev/null | md5sum | cut -b-32"`
         echo "current uboot: ${UBOOT_SUM} vs new: ${NEW_SUM}"
         [ x"${UBOOT_SUM}" = x"${NEW_SUM}" ] || {
-            dd if=${UBOOT_BIN} of=${EMMC_DEVICE} bs=1024 seek=8 conv=notrunc,fsync
+            sudo sh -c "dd if=${UBOOT_BIN} of=${EMMC_DEVICE} bs=1024 seek=8 conv=notrunc,fsync"
             echo "new bootloader updated $?"
         }
     }
@@ -49,17 +57,24 @@ do_hotfix() {
     done
 
     # update watchdog conf
-    sed 's/#watchdog-device/watchdog-device/g' /etc/watchdog.conf > /tmp/watchdog.conf && {
+    sudo sh -c "sed 's/#watchdog-device/watchdog-device/g' /etc/watchdog.conf > /tmp/watchdog.conf" && {
         sudo mv /tmp/watchdog.conf /etc/
     }
 
     # enable new services
     sudo systemctl enable shutdown-h3
+    sudo systemctl enable suspend-hdmi
+    sudo systemctl disable screencast
     sudo systemctl daemon-reload
+
+    # check post sync
+    [ $POST_NEED_SYNC = "YES" ] && {
+        sudo /usr/bin/factory sync eth0_mac
+    }
 
     # restore h3disp
     echo "restore current disp mode: ${CURR_DISP_MODE}"
-    h3disp -m ${CURR_DISP_MODE}
+    sudo h3disp -m ${CURR_DISP_MODE}
 }
 
 main()
