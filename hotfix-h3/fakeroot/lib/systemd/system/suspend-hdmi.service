@@ -1,0 +1,13 @@
+[Unit]
+Description=suspend-hdmi
+Before=graphical.target
+Conflicts=reboot.target
+
+[Service]
+ExecStart=+/bin/sh -c "/bin/echo 0x0 > /sys/devices/virtual/hdmi/hdmi/attr/hpd_mask"
+ExecStop=/bin/sh -c "/bin/echo 0x10 > /sys/devices/virtual/hdmi/hdmi/attr/hpd_mask"
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target
