@@ -30,6 +30,11 @@ cat /sys/class/disp/disp/attr/sys
 \# hotplug-out
 echo 0x10 > /sys/devices/virtual/hdmi/hdmi/attr/hpd_mask
 
+
+\# disable con cursor blink
+echo 0 > /sys/class/graphics/fbcon/cursor_blink
+
+
 dmesg -c
 
 

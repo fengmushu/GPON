@@ -72,9 +72,14 @@ do_hotfix() {
         sudo /usr/bin/factory sync eth0_mac
     }
 
+    # replace the access owner
+    sudo chown ken:ken /home/ken -R
+
     # restore h3disp
-    echo "restore current disp mode: ${CURR_DISP_MODE}"
-    sudo h3disp -m ${CURR_DISP_MODE}
+    [ -z "${CURR_DISP_MODE}" ] || {
+        echo "restore current disp mode: ${CURR_DISP_MODE}"
+        sudo h3disp -m ${CURR_DISP_MODE}
+    }
 }
 
 main()
