@@ -47,6 +47,18 @@ env_reset_hw_addr() {
 }
 
 update_interface() {
+	IF_EHT0=`grep "eth0" /etc/network/interfaces 2>/dev/null | awk '{print $2}'`
+	[ -z "${IF_EHT0}" ] && {
+		# eth0 interface not found? create one
+		cat >> /etc/network/interfaces <<EOF
+
+auto eth0
+  iface eth0 inet dhcp
+  hwaddress ether ${env_mac_default}
+EOF
+	}
+
+	# replace hwaddress use factroy set value;
 	sed "s/hwaddress ether .*/hwaddress ether $1/g" /etc/network/interfaces > /tmp/interfaces.new || exit
 	sudo cp /tmp/interfaces.new /etc/network/interfaces
 	sync
