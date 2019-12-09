@@ -12,7 +12,7 @@ osgi:
 					"osgi-hproxy" ./startup.sh
 
 h3:
-	echo $(STAMP) > hotfix-h3/fakeroot/etc/hotfix-version
+	echo $(STAMP) > hotfix-h3/hotfix-version
 	./makeself/makeself.sh --gzip --nowctr \
 					hotfix-h3/ hotfix-h3-$(STAMP).run \
 					"hotfix-h3" ./startup.sh > hotfix-h3-$(STAMP).log
