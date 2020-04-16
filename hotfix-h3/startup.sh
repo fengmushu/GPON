@@ -5,6 +5,7 @@
 WORK_DIR=`pwd`
 # KVER=`uname  -r`
 KVER='3.4.113+'
+HOT_FIX_VER=/etc/hotfix-version
 
 DEBS_DIR="/var/cache/apt/archives/"
 DEBS_LIST="watchdog_5.14-3ubuntu0.16.04.1_armhf.deb"
@@ -20,7 +21,7 @@ SU_DO=''
 
 copy_files() {
     # check factory mac sync flag
-    [ -f /etc/hotfix-version ] || {
+    [ -f ${HOT_FIX_VER} ] || {
         # first patch after reset
         POST_NEED_SYNC="YES"
     }
@@ -69,6 +70,7 @@ do_hotfix() {
     ${SU_DO} systemctl enable shutdown-h3
     ${SU_DO} systemctl enable suspend-hdmi
     ${SU_DO} systemctl disable screencast
+    ${SU_DO} systemctl disable NetworkManager
     ${SU_DO} systemctl daemon-reload
 
     # check post sync
@@ -86,7 +88,10 @@ do_hotfix() {
     }
 
     # update version info
-    cd ${WORK_DIR} && ${SU_DO} cp -f hotfix-version /etc/
+    cd ${WORK_DIR} && {
+        ${SU_DO} sh -c "date >> ${HOT_FIX_VER}"
+        ${SU_DO} sh -c "cat hotfix-version >> ${HOT_FIX_VER}"
+    }
 }
 
 main()
