@@ -70,7 +70,7 @@ do_hotfix() {
     ${SU_DO} systemctl enable shutdown-h3
     ${SU_DO} systemctl enable suspend-hdmi
     ${SU_DO} systemctl disable screencast
-    ${SU_DO} systemctl disable NetworkManager
+    #${SU_DO} systemctl disable NetworkManager
     ${SU_DO} systemctl daemon-reload
 
     # check post sync
