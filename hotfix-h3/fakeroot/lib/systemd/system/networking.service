@@ -18,4 +18,4 @@ ExecStartPre=-/bin/sh -c '[ "$CONFIGURE_INTERFACES" != "no" ] && [ -n "$(ifquery
 ExecStart=/sbin/ifup -a --read-environment
 ExecStop=/sbin/ifdown -a --read-environment --exclude=lo
 RemainAfterExit=true
-TimeoutStartSec=30
+TimeoutStartSec=3

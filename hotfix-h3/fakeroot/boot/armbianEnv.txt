@@ -1,0 +1,8 @@
+verbosity=7
+console=serial
+overlay_prefix=sun8i-h3
+disp_mem_reserves=on
+extraargs=
+rootdev=UUID=f1717866-a4fb-4e02-9beb-420462a889e4
+rootfstype=ext4
+usbstoragequirks=0x2537:0x1066:u,0x2537:0x1068:u
